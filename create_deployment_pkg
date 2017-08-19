@@ -1,0 +1,24 @@
+#!/bin/bash
+
+readonly WORKING_DIR="$PWD"
+readonly OUTPUT_DIR="/tmp/deploy"
+readonly OUTPUT_ZIP="/dev/shm/deploy.zip"  # must match .travis.yml
+readonly DEPENDENCIES="$VIRTUAL_ENV/lib/python3.6/site-packages"
+
+echo "Working directory: $WORKING_DIR"
+echo "Virtual env: $VIRTUAL_ENV"
+
+if [[ -d $OUTPUT_DIR ]]; then
+    echo "Output dir already exists" >&2
+    exit 1
+fi
+
+mkdir "$OUTPUT_DIR"
+rsync -a "$DEPENDENCIES/" "$OUTPUT_DIR"
+rsync -a pushover_notification/ "$OUTPUT_DIR"
+du -sh "$OUTPUT_DIR"
+
+cd "$OUTPUT_DIR"  # cannot have container dir in zip
+zip -qr9 "$OUTPUT_ZIP" .
+cd "$WORKING_DIR"
+du -sh "$OUTPUT_ZIP"
