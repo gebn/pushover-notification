@@ -1,4 +1,4 @@
-dateutil
-chump
-pytz
 boto3
+chump
+python-dateutil
+pytz
