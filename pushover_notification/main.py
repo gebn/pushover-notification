@@ -25,7 +25,11 @@ def _parse_message(record: dict) -> chump.Message:
     :return: The Pushover message.
     :raises ValueError: If the message is malformed.
     """
-    message = json.loads(record['Sns']['Message'])
+    try:
+        message = json.loads(record['Sns']['Message'])
+    except json.decoder.JSONDecodeError as e:
+        raise ValueError(f'Failed to parse message JSON: {e}')
+
     if 'body' not in message:
         raise ValueError('Message must have a body')
 
