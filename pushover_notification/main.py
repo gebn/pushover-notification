@@ -23,6 +23,7 @@ def _parse_message(record: dict) -> chump.Message:
     
     :param record: The individual SNS record. 
     :return: The Pushover message.
+    :raises ValueError: If the message is malformed.
     """
     message = json.loads(record['Sns']['Message'])
     if 'body' not in message:
