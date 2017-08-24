@@ -62,6 +62,6 @@ def lambda_handler(event, context) -> int:
             if not message.is_sent:
                 return 2
             logger.debug('Successfully sent notification %s', message.id)
-        except KeyError:
+        except (ValueError, KeyError):
             logger.exception('Malformed record')
     return 0
