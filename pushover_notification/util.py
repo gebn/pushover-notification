@@ -13,7 +13,7 @@ def kms_decrypt(ciphertext: str) -> bytes:
     """
     Decrypt a value using KMS.
 
-    :param ciphertext: The base64-encoded ciphertext. 
+    :param ciphertext: The base64-encoded ciphertext.
     :return: The plaintext bytestring.
     """
     return _KMS.decrypt(

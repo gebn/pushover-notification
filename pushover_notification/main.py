@@ -20,8 +20,8 @@ logger.setLevel(logging.DEBUG)
 def _parse_message(record: dict) -> chump.Message:
     """
     Extract a Pushover message from an SNS record.
-    
-    :param record: The individual SNS record. 
+
+    :param record: The individual SNS record.
     :return: The Pushover message.
     :raises ValueError: If the message is malformed.
     """
@@ -57,7 +57,7 @@ def lambda_handler(event, context) -> int:
     :param event: The event that triggered this execution.
     :param context: Current runtime information: http://docs.aws.amazon.com
                     /lambda/latest/dg/python-context-object.html.
-    :return: The script exit code. 
+    :return: The script exit code.
     """
     logger.info(f'Event: {event}')
     for record in event['Records']:
