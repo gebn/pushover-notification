@@ -114,7 +114,7 @@ def lambda_handler(event, context) -> int:
                     /lambda/latest/dg/python-context-object.html.
     :return: The script exit code.
     """
-    logger.info(f'Event: {event}')
+    logger.info(f'Event: {json.dumps(event, indent=4)}')
 
     if 'Records' not in event:
         logger.error('Event contains no records')
