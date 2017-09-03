@@ -23,6 +23,7 @@ deploy:
     secure: NpurB6GR63bwUj2yfmqIHyaA+C5cn1d1NRI2sYeaxQnqQ9WZpHUwpR87B7u3Q9TFYbobvnrSWmeYPybgPXHbvWeTPtJcItjwOCe+PXCR05zRXYtfj6QBcTspNdWZVft0ZdTVmohaX3nQkXmcuIWGTJurtpi9EqhrHU+Tw399ypBJtbQp9AeWi8Wle6aTu2NQs6L9UyyVBvnQWtWIfwR2To+pYfyiodUK/244WkzuTd19JYoTSPMbrgH03//k/u+ZcgPf3mS7Xet5xY7Gv/omNHRH0wOrqDMGv3wTbk8YZLTvXW+jYr/GhSP32KKFGVYKuPvo4xV5Bklx4ozwJbCAQxgMNEPtbTJlDpVh2ng1KTt5R43EZlR1glD2IUfrDXVWHW8q518Zhz31etdascP5DXrvyiSwGmvRZRJHOeiNI6hjiV6mk9UI0tQNGT0elPG6AIaTI+y4ODpINEpsebVEvDhqmzvA9Wu3XY5Uf60rEKlf1vD2j6BBgODcf1fosaG7iWoJwnp+PBIOrFn2LiEWkVn8WY3k6pAs1i7F7pkz5vRQ9lZg7RtoX/6H04KVDCu7+uH94Uvupi1tUzukw3NgHr2aULEk3QdXeQfUWY81/HzUz+JmX/O1BZIlybL3xwsSLNdcOZjSJ21Zgv2Riq9fWbXCXsTXlRF0OnXf+DSCM1U=
   on:
     branch: latest
+    condition: -z $TRAVIS_TAG
 - provider: lambda
   function_name: pushover-notification
   description: Sends a push notification via Pushover in response to an SNS message
