@@ -6,7 +6,7 @@ python:
 script:
 - "./create_deployment_pkg"
 deploy:
-  provider: lambda
+- provider: lambda
   function_name: pushover-notification
   description: Sends a push notification via Pushover in response to an SNS message
   region: us-east-1
@@ -23,3 +23,21 @@ deploy:
     secure: NpurB6GR63bwUj2yfmqIHyaA+C5cn1d1NRI2sYeaxQnqQ9WZpHUwpR87B7u3Q9TFYbobvnrSWmeYPybgPXHbvWeTPtJcItjwOCe+PXCR05zRXYtfj6QBcTspNdWZVft0ZdTVmohaX3nQkXmcuIWGTJurtpi9EqhrHU+Tw399ypBJtbQp9AeWi8Wle6aTu2NQs6L9UyyVBvnQWtWIfwR2To+pYfyiodUK/244WkzuTd19JYoTSPMbrgH03//k/u+ZcgPf3mS7Xet5xY7Gv/omNHRH0wOrqDMGv3wTbk8YZLTvXW+jYr/GhSP32KKFGVYKuPvo4xV5Bklx4ozwJbCAQxgMNEPtbTJlDpVh2ng1KTt5R43EZlR1glD2IUfrDXVWHW8q518Zhz31etdascP5DXrvyiSwGmvRZRJHOeiNI6hjiV6mk9UI0tQNGT0elPG6AIaTI+y4ODpINEpsebVEvDhqmzvA9Wu3XY5Uf60rEKlf1vD2j6BBgODcf1fosaG7iWoJwnp+PBIOrFn2LiEWkVn8WY3k6pAs1i7F7pkz5vRQ9lZg7RtoX/6H04KVDCu7+uH94Uvupi1tUzukw3NgHr2aULEk3QdXeQfUWY81/HzUz+JmX/O1BZIlybL3xwsSLNdcOZjSJ21Zgv2Riq9fWbXCXsTXlRF0OnXf+DSCM1U=
   on:
     branch: latest
+- provider: lambda
+  function_name: pushover-notification
+  description: Sends a push notification via Pushover in response to an SNS message
+  region: us-east-1
+  role: arn:aws:iam::158438328645:role/service-role/pushover-notification-role
+  runtime: python3.6
+  module_name: main
+  handler_name: lambda_handler
+  zip: "/dev/shm/deploy.zip"
+  timeout: 10
+  memory_size: 128
+  publish: true
+  access_key_id:
+    secure: MOGgHyMzcG6QqMeo7Ti36FjmEz5rjQtHJjORwWWtBwBLBed3R4BuHP5WoPhb0RpUVNSwCft4bXIyqsPBMTzSnGB9Mr4Q1rL4IV6+Q5y74LqvoXjk0XjQozoTDjWC68fn37QNCgSdBdlB05Cr1DlL9FH++kaUAWWfy/B9t8vxNWB9ibevrE3l95c49h3avzbUhAxqEa8dG3rZ3Nclejxsqyba0rQDTbwOrAAT5nV3ILZh9qcn+tGSIV7JsQzDpguFYs/S9e4SuWoZxgFpHwwhta8DskFimTIHbAfVuWVvOxaBf+l8AvTi+zDawMv2rd/eLw1xeEJuaWXNf5hRNiwlYPKeErIz3AOwKn/+0y0QumrHpQbjEGNAd/5YDk6x/Z78J0Widturzlmje/dnuyOrA5IRyWG6al2P+sEWVOFmoYaTJKg7HD3J4esTsUHXbv+/gN40MKnybk7W0nuIWwcWlCkEDxD+NxW3dNm1qbJ/F0h9Ru8P6YwjL5a2s7/F4tsaHY6BjUFlin62+fHGEJ5WaSVrS4p2MgNUSqVhhpe/EJv3VtYXZHrZn+ZvP9y3BnWFpqEUzdSDADImswRFXbkBiuvnzUA+9/mfrn7t5qW/b1VBR/wlh3owgeVwQrXOXUrCd+jdJ9UU/ilveVNwD0eDTMIhxqermDsmM7Wh6M6auxs=
+  secret_access_key:
+    secure: NpurB6GR63bwUj2yfmqIHyaA+C5cn1d1NRI2sYeaxQnqQ9WZpHUwpR87B7u3Q9TFYbobvnrSWmeYPybgPXHbvWeTPtJcItjwOCe+PXCR05zRXYtfj6QBcTspNdWZVft0ZdTVmohaX3nQkXmcuIWGTJurtpi9EqhrHU+Tw399ypBJtbQp9AeWi8Wle6aTu2NQs6L9UyyVBvnQWtWIfwR2To+pYfyiodUK/244WkzuTd19JYoTSPMbrgH03//k/u+ZcgPf3mS7Xet5xY7Gv/omNHRH0wOrqDMGv3wTbk8YZLTvXW+jYr/GhSP32KKFGVYKuPvo4xV5Bklx4ozwJbCAQxgMNEPtbTJlDpVh2ng1KTt5R43EZlR1glD2IUfrDXVWHW8q518Zhz31etdascP5DXrvyiSwGmvRZRJHOeiNI6hjiV6mk9UI0tQNGT0elPG6AIaTI+y4ODpINEpsebVEvDhqmzvA9Wu3XY5Uf60rEKlf1vD2j6BBgODcf1fosaG7iWoJwnp+PBIOrFn2LiEWkVn8WY3k6pAs1i7F7pkz5vRQ9lZg7RtoX/6H04KVDCu7+uH94Uvupi1tUzukw3NgHr2aULEk3QdXeQfUWY81/HzUz+JmX/O1BZIlybL3xwsSLNdcOZjSJ21Zgv2Riq9fWbXCXsTXlRF0OnXf+DSCM1U=
+  on:
+    tags: true
