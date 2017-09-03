@@ -90,6 +90,11 @@ def _parse_message(record: dict) -> chump.Message:
     if 'Type' not in sns or sns['Type'] != 'Notification':
         raise ValueError('Event is not an SNS notification')
 
+    if 'MessageId' not in sns:
+        raise ValueError('SNS notification lacks a MessageId')
+
+    logger.info(f"Parsing message {sns['MessageId']}")
+
     if 'Message' not in sns:
         raise ValueError('SNS notification lacks a Message')
 
