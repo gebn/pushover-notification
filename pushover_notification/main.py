@@ -17,18 +17,22 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def _parse_message(record: dict) -> chump.Message:
+def _parse_json_message(record: dict) -> chump.Message:
     """
-    Extract a Pushover message from an SNS record.
+    Extract a JSON-formatted message from an SNS record. This allows more
+    control over the notification, but requires the sender to be familiar with
+    our format.
 
-    :param record: The individual SNS record.
-    :return: The Pushover message.
-    :raises ValueError: If the message is malformed.
+    :param record: The the Lambda event record. This should be a message from
+                   SNS.
+    :return: A Pushover message constructed from the event.
+    :raises ValueError: If the event or message is malformed.
     """
+
     try:
         message = json.loads(record['Sns']['Message'])
     except json.decoder.JSONDecodeError as e:
-        raise ValueError(f'Failed to parse message JSON: {e}')
+        raise ValueError(f'Message is not valid JSON: {e}')
 
     if 'body' not in message:
         raise ValueError('Message must have a body')
@@ -49,6 +53,57 @@ def _parse_message(record: dict) -> chump.Message:
                                priority=priority)
 
 
+def _parse_generic_message(record: dict) -> chump.Message:
+    """
+    Extract a simple message from an event. This simply uses the `Subject`,
+    `Message` and `Timestamp` fields of the SNS notification.
+
+    :param record: The the Lambda event record. This should be a message from
+                   SNS.
+    :return: A Pushover message constructed from the event.
+    :raises ValueError: If the event is malformed.
+    """
+
+    sns = record['Sns']
+    title = sns['Subject'] if 'Subject' in sns else None
+    timestamp = sns['Timestamp'] if 'Timestamp' in sns else None
+
+    user = chump \
+        .Application(_DEFAULT_PUSHOVER_APP_TOKEN) \
+        .get_user(_DEFAULT_PUSHOVER_USER_KEY)
+    return user.create_message(sns['Message'], title=title,
+                               timestamp=timestamp)
+
+
+def _parse_message(record: dict) -> chump.Message:
+    """
+    Turn an event record into a Pushover message.
+
+    :param record: The JSON-formatted, or plaintext event.
+    :return: A Pushover message constructed from the event.
+    :raises ValueError: If the event is malformed.
+    """
+    if 'Sns' not in record:  # could also check EventSource == 'aws:sns'
+        raise ValueError('Event did not originate from SNS')
+
+    sns = record['Sns']
+    if 'Type' not in sns or sns['Type'] != 'Notification':
+        raise ValueError('Event is not an SNS notification')
+
+    if 'Message' not in sns:
+        raise ValueError('SNS notification lacks a Message')
+
+    try:
+        # attempt to parse the event as a JSON-formatted message; this will
+        # work for events sent by applications aware of our existence
+        return _parse_json_message(record)
+    except ValueError:
+        # fall back to creating a notification from the raw event fields; this
+        # will be used for events from AWS itself, e.g. when a budget is
+        # exceeded
+        return _parse_generic_message(record)
+
+
 # noinspection PyUnusedLocal
 def lambda_handler(event, context) -> int:
     """
@@ -60,13 +115,23 @@ def lambda_handler(event, context) -> int:
     :return: The script exit code.
     """
     logger.info(f'Event: {event}')
+
+    if 'Records' not in event:
+        logger.error('Event contains no records')
+        return 1
+
+    errors = 0
     for record in event['Records']:
         try:
             message = _parse_message(record)
             message.send()
             if not message.is_sent:
-                return 2
-            logger.debug('Successfully sent notification %s', message.id)
-        except (ValueError, KeyError):
-            logger.exception('Malformed message')
-    return 0
+                errors += 1
+                continue
+
+            logger.debug(f'Successfully sent notification {message.id}')
+        except ValueError:
+            logger.exception('Malformed event record')
+            errors += 1
+
+    return errors
