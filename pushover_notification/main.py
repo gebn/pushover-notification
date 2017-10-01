@@ -130,7 +130,8 @@ def lambda_handler(event, context) -> int:
             message = _parse_message(record)
             response = message.send(max_tries=1)  # disable back-off
             if not response.ok:
-                logger.error('Send error: %s', response.errors)
+                logger.error('Send error %d for request %s: %s',
+                             response.status, response.id, response.errors)
                 errors += 1
                 continue
 
