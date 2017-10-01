@@ -18,6 +18,7 @@ _DEFAULT_PUSHOVER_USER_KEY = util.kms_decrypt_str(
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+logging.getLogger('pullover').setLevel(logging.DEBUG)
 
 
 def _extract(payload: Dict[str, Any], key: str, default: Any = None,
