@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from typing import Dict, Callable, Any
 import logging
+import functools
+
 import dateutil.parser
 import json
 import pullover
@@ -15,6 +18,29 @@ _DEFAULT_PUSHOVER_USER_KEY = util.kms_decrypt_str(
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+
+def _extract(payload: Dict[str, Any], key: str, default: Any = None,
+             process: Callable[[Any], Any] = lambda i: i):
+    """
+    Pull a variable out of a payload.
+
+    :param payload: The payload dictionary.
+    :param key: The name of the key to retrieve from the payload.
+    :param default: The value to return if the key is not in the payload.
+                    Defaults to None.
+    :param process: If the key is in the payload, the corresponding value is
+                    passed through this function before being returned. This
+                    function will propagate any errors raised by this callable.
+                    Defaults to an identity function, i.e. no processing.
+    :return: The processed value under the key, or the default if the key was
+             not passed.
+    """
+    # this seems trivial, and it is, but we've had a bug caused by one key
+    # being checked and a different one retrieved, resulting in a KeyError
+    if key in payload:
+        return process(payload[key])
+    return default
 
 
 def _parse_json_message(record: dict) -> pullover.PreparedMessage:
@@ -36,18 +62,16 @@ def _parse_json_message(record: dict) -> pullover.PreparedMessage:
 
     if 'body' not in message:
         raise ValueError('Message must have a body')
-
-    app_token = message['app'] \
-        if 'app' in message else _DEFAULT_PUSHOVER_APP_TOKEN
-    user_key = message['user'] \
-        if 'user' in message else _DEFAULT_PUSHOVER_USER_KEY
     body = message['body']
-    title = message['title'] if 'title' in message else None
-    timestamp = dateutil.parser.parse(message['timestamp']) \
-        if 'timestamp' in message else None
-    url = message['url'] if 'url' in message else None
-    url_title = message['url_title'] if 'url_title' in message else None
-    priority = message['priority'] if 'url' in message else None
+
+    extract = functools.partial(_extract, message)
+    app_token = extract('app', _DEFAULT_PUSHOVER_APP_TOKEN)
+    user_key = extract('user', _DEFAULT_PUSHOVER_USER_KEY)
+    title = extract('title')
+    timestamp = extract('timestamp', process=dateutil.parser.parse)
+    url = extract('url')
+    url_title = extract('url_title')
+    priority = extract('priority')
 
     return Message(body, title, timestamp, url, url_title, priority).prepare(
         Application(app_token), User(user_key))
@@ -65,9 +89,10 @@ def _parse_generic_message(record: dict) -> pullover.PreparedMessage:
     """
 
     sns = record['Sns']
-    title = sns['Subject'] if 'Subject' in sns else None
-    timestamp = dateutil.parser.parse(sns['Timestamp']) \
-        if 'Timestamp' in sns else None
+
+    extract = functools.partial(_extract, sns)
+    title = extract('Subject')
+    timestamp = extract('Timestamp', process=dateutil.parser.parse)
 
     return Message(sns['Message'], title, timestamp).prepare(
         Application(_DEFAULT_PUSHOVER_APP_TOKEN),
