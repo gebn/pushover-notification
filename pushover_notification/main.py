@@ -47,9 +47,10 @@ def _parse_json_message(record: dict) -> pullover.PreparedMessage:
     timestamp = dateutil.parser.parse(message['timestamp']) \
         if 'timestamp' in message else None
     url = message['url'] if 'url' in message else None
+    url_title = message['url_title'] if 'url_title' in message else None
     priority = message['priority'] if 'url' in message else None
 
-    return Message(body, title, timestamp, url, priority=priority).prepare(
+    return Message(body, title, timestamp, url, url_title, priority).prepare(
         Application(app_token), User(user_key))
 
 
