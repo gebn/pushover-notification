@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from typing import Tuple
 import logging
 import dateutil.parser
 import json
