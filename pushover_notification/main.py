@@ -106,6 +106,8 @@ def _parse_message(record: dict) -> pullover.PreparedMessage:
         # fall back to creating a notification from the raw event fields; this
         # will be used for events from AWS itself, e.g. when a budget is
         # exceeded
+        logger.warning('Failed to parse message as JSON; falling back to '
+                       'generic handler', exc_info=True)
         return _parse_generic_message(record)
 
 
