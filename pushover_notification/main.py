@@ -3,6 +3,7 @@ from typing import Tuple
 import logging
 import dateutil.parser
 import json
+import pullover
 from pullover import Application, User, Message
 import os
 
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def _parse_json_message(record: dict) -> Tuple[Application, User, Message]:
+def _parse_json_message(record: dict) -> pullover.PreparedMessage:
     """
     Extract a JSON-formatted message from an SNS record. This allows more
     control over the notification, but requires the sender to be familiar with
@@ -48,12 +49,11 @@ def _parse_json_message(record: dict) -> Tuple[Application, User, Message]:
     url = message['url'] if 'url' in message else None
     priority = message['priority'] if 'url' in message else None
 
-    return Application(app_token), User(user_key), Message(body, title,
-                                                           timestamp, url,
-                                                           priority=priority)
+    return Message(body, title, timestamp, url, priority=priority).prepare(
+        Application(app_token), User(user_key))
 
 
-def _parse_generic_message(record: dict) -> Tuple[Application, User, Message]:
+def _parse_generic_message(record: dict) -> pullover.PreparedMessage:
     """
     Extract a simple message from an event. This simply uses the `Subject`,
     `Message` and `Timestamp` fields of the SNS notification.
@@ -68,12 +68,12 @@ def _parse_generic_message(record: dict) -> Tuple[Application, User, Message]:
     title = sns['Subject'] if 'Subject' in sns else None
     timestamp = sns['Timestamp'] if 'Timestamp' in sns else None
 
-    return (Application(_DEFAULT_PUSHOVER_APP_TOKEN),
-            User(_DEFAULT_PUSHOVER_USER_KEY),
-            Message(sns['Message'], title, timestamp))
+    return Message(sns['Message'], title, timestamp).prepare(
+        Application(_DEFAULT_PUSHOVER_APP_TOKEN),
+        User(_DEFAULT_PUSHOVER_USER_KEY))
 
 
-def _parse_message(record: dict) -> Tuple[Application, User, Message]:
+def _parse_message(record: dict) -> pullover.PreparedMessage:
     """
     Turn an event record into a Pushover message.
 
@@ -126,14 +126,14 @@ def lambda_handler(event, context) -> int:
     errors = 0
     for record in event['Records']:
         try:
-            app, user, message = _parse_message(record)
-            response = message.send(app, user)
+            message = _parse_message(record)
+            response = message.send(max_tries=1)  # disable back-off
             if not response.ok:
-                logger.error('Error sending to %s: %s', user, response.errors)
+                logger.error('Send error: %s', response.errors)
                 errors += 1
                 continue
 
-            logger.debug('Successfully sent notification %s', message.id)
+            logger.debug('Successfully sent notification %s', response.id)
         except ValueError:
             logger.exception('Malformed event record')
             errors += 1
