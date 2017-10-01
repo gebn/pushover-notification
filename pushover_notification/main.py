@@ -92,7 +92,7 @@ def _parse_message(record: dict) -> pullover.PreparedMessage:
     if 'MessageId' not in sns:
         raise ValueError('SNS notification lacks a MessageId')
 
-    logger.info('Parsing message %s', sns['MessageId'])
+    logger.debug('Parsing message %s', sns['MessageId'])
 
     if 'Message' not in sns:
         raise ValueError('SNS notification lacks a Message')
@@ -137,7 +137,7 @@ def lambda_handler(event, context) -> int:
                 errors += 1
                 continue
 
-            logger.debug('Successfully sent notification %s', response.id)
+            logger.info('Successfully sent notification %s', response.id)
         except ValueError:
             logger.exception('Malformed event record')
             errors += 1
