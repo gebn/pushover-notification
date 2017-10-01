@@ -67,7 +67,8 @@ def _parse_generic_message(record: dict) -> pullover.PreparedMessage:
 
     sns = record['Sns']
     title = sns['Subject'] if 'Subject' in sns else None
-    timestamp = sns['Timestamp'] if 'Timestamp' in sns else None
+    timestamp = dateutil.parser.parse(sns['Timestamp']) \
+        if 'Timestamp' in sns else None
 
     return Message(sns['Message'], title, timestamp).prepare(
         Application(_DEFAULT_PUSHOVER_APP_TOKEN),
