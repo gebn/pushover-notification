@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from typing import Tuple
 import logging
 import dateutil.parser
 import json
-import chump
+from pullover import Application, User, Message
 import os
 
 import util
@@ -12,12 +13,11 @@ _DEFAULT_PUSHOVER_APP_TOKEN = util.kms_decrypt_str(
 _DEFAULT_PUSHOVER_USER_KEY = util.kms_decrypt_str(
     os.environ['DEFAULT_PUSHOVER_USER_KEY'])
 
-logging.getLogger('chump').setLevel(logging.INFO)  # chump is very loud
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def _parse_json_message(record: dict) -> chump.Message:
+def _parse_json_message(record: dict) -> Tuple[Application, User, Message]:
     """
     Extract a JSON-formatted message from an SNS record. This allows more
     control over the notification, but requires the sender to be familiar with
@@ -25,7 +25,7 @@ def _parse_json_message(record: dict) -> chump.Message:
 
     :param record: The the Lambda event record. This should be a message from
                    SNS.
-    :return: A Pushover message constructed from the event.
+    :return: A Pushover app, user, message tuple constructed from the event.
     :raises ValueError: If the event or message is malformed.
     """
 
@@ -48,19 +48,19 @@ def _parse_json_message(record: dict) -> chump.Message:
     url = message['url'] if 'url' in message else None
     priority = message['priority'] if 'url' in message else None
 
-    user = chump.Application(app_token).get_user(user_key)
-    return user.create_message(body, title=title, timestamp=timestamp, url=url,
-                               priority=priority)
+    return Application(app_token), User(user_key), Message(body, title,
+                                                           timestamp, url,
+                                                           priority=priority)
 
 
-def _parse_generic_message(record: dict) -> chump.Message:
+def _parse_generic_message(record: dict) -> Tuple[Application, User, Message]:
     """
     Extract a simple message from an event. This simply uses the `Subject`,
     `Message` and `Timestamp` fields of the SNS notification.
 
     :param record: The the Lambda event record. This should be a message from
                    SNS.
-    :return: A Pushover message constructed from the event.
+    :return: A Pushover app, user, message tuple constructed from the event.
     :raises ValueError: If the event is malformed.
     """
 
@@ -68,19 +68,17 @@ def _parse_generic_message(record: dict) -> chump.Message:
     title = sns['Subject'] if 'Subject' in sns else None
     timestamp = sns['Timestamp'] if 'Timestamp' in sns else None
 
-    user = chump \
-        .Application(_DEFAULT_PUSHOVER_APP_TOKEN) \
-        .get_user(_DEFAULT_PUSHOVER_USER_KEY)
-    return user.create_message(sns['Message'], title=title,
-                               timestamp=timestamp)
+    return (Application(_DEFAULT_PUSHOVER_APP_TOKEN),
+            User(_DEFAULT_PUSHOVER_USER_KEY),
+            Message(sns['Message'], title, timestamp))
 
 
-def _parse_message(record: dict) -> chump.Message:
+def _parse_message(record: dict) -> Tuple[Application, User, Message]:
     """
     Turn an event record into a Pushover message.
 
     :param record: The JSON-formatted, or plaintext event.
-    :return: A Pushover message constructed from the event.
+    :return: A Pushover app, user, message tuple constructed from the event.
     :raises ValueError: If the event is malformed.
     """
     if 'Sns' not in record:  # could also check EventSource == 'aws:sns'
@@ -93,7 +91,7 @@ def _parse_message(record: dict) -> chump.Message:
     if 'MessageId' not in sns:
         raise ValueError('SNS notification lacks a MessageId')
 
-    logger.info(f"Parsing message {sns['MessageId']}")
+    logger.info('Parsing message %s', sns['MessageId'])
 
     if 'Message' not in sns:
         raise ValueError('SNS notification lacks a Message')
@@ -119,7 +117,7 @@ def lambda_handler(event, context) -> int:
                     /lambda/latest/dg/python-context-object.html.
     :return: The script exit code.
     """
-    logger.info(f'Event: {json.dumps(event, indent=4)}')
+    logger.info('Event: %s', json.dumps(event, indent=4))
 
     if 'Records' not in event:
         logger.error('Event contains no records')
@@ -128,13 +126,14 @@ def lambda_handler(event, context) -> int:
     errors = 0
     for record in event['Records']:
         try:
-            message = _parse_message(record)
-            message.send()
-            if not message.is_sent:
+            app, user, message = _parse_message(record)
+            response = message.send(app, user)
+            if not response.ok:
+                logger.error('Error sending to %s: %s', user, response.errors)
                 errors += 1
                 continue
 
-            logger.debug(f'Successfully sent notification {message.id}')
+            logger.debug('Successfully sent notification %s', message.id)
         except ValueError:
             logger.exception('Malformed event record')
             errors += 1
