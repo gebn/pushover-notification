@@ -59,7 +59,7 @@ def _parse_json_message(record: dict) -> pullover.PreparedMessage:
     try:
         message = json.loads(record['Sns']['Message'])
     except json.decoder.JSONDecodeError as e:
-        raise ValueError(f'Message is not valid JSON: {e}')
+        raise ValueError(f'Message is not valid JSON') from e
 
     if 'body' not in message:
         raise ValueError('Message must have a body')
@@ -132,7 +132,7 @@ def _parse_message(record: dict) -> pullover.PreparedMessage:
         # will be used for events from AWS itself, e.g. when a budget is
         # exceeded
         logger.warning('Failed to parse message as JSON; falling back to '
-                       'generic handler', exc_info=True)
+                       'generic handler')
         return _parse_generic_message(record)
 
 
