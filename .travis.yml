@@ -15,7 +15,7 @@ deploy:
   module_name: main
   handler_name: lambda_handler
   zip: "/dev/shm/deploy.zip"
-  timeout: 10
+  timeout: 6
   memory_size: 128
   access_key_id:
     secure: MOGgHyMzcG6QqMeo7Ti36FjmEz5rjQtHJjORwWWtBwBLBed3R4BuHP5WoPhb0RpUVNSwCft4bXIyqsPBMTzSnGB9Mr4Q1rL4IV6+Q5y74LqvoXjk0XjQozoTDjWC68fn37QNCgSdBdlB05Cr1DlL9FH++kaUAWWfy/B9t8vxNWB9ibevrE3l95c49h3avzbUhAxqEa8dG3rZ3Nclejxsqyba0rQDTbwOrAAT5nV3ILZh9qcn+tGSIV7JsQzDpguFYs/S9e4SuWoZxgFpHwwhta8DskFimTIHbAfVuWVvOxaBf+l8AvTi+zDawMv2rd/eLw1xeEJuaWXNf5hRNiwlYPKeErIz3AOwKn/+0y0QumrHpQbjEGNAd/5YDk6x/Z78J0Widturzlmje/dnuyOrA5IRyWG6al2P+sEWVOFmoYaTJKg7HD3J4esTsUHXbv+/gN40MKnybk7W0nuIWwcWlCkEDxD+NxW3dNm1qbJ/F0h9Ru8P6YwjL5a2s7/F4tsaHY6BjUFlin62+fHGEJ5WaSVrS4p2MgNUSqVhhpe/EJv3VtYXZHrZn+ZvP9y3BnWFpqEUzdSDADImswRFXbkBiuvnzUA+9/mfrn7t5qW/b1VBR/wlh3owgeVwQrXOXUrCd+jdJ9UU/ilveVNwD0eDTMIhxqermDsmM7Wh6M6auxs=
@@ -32,7 +32,7 @@ deploy:
   module_name: main
   handler_name: lambda_handler
   zip: "/dev/shm/deploy.zip"
-  timeout: 10
+  timeout: 6
   memory_size: 128
   publish: true
   access_key_id:
