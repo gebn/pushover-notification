@@ -1,4 +1,4 @@
 boto3
-pullover
+pullover>=1.1.0
 python-dateutil
 pytz
