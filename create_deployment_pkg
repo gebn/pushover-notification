@@ -15,7 +15,7 @@ fi
 
 mkdir "$OUTPUT_DIR"
 rsync -a "$DEPENDENCIES/" "$OUTPUT_DIR"
-rsync -a pushover_notification/ "$OUTPUT_DIR"
+rsync -a pushover_notification.py "$OUTPUT_DIR"
 du -sh "$OUTPUT_DIR"
 
 cd "$OUTPUT_DIR"  # cannot have container dir in zip
