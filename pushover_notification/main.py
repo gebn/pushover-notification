@@ -1,20 +1,15 @@
 # -*- coding: utf-8 -*-
 from typing import Dict, Callable, Any
 import logging
+import os
 import functools
-
 import dateutil.parser
 import json
 import pullover
 from pullover import Application, User, Message
-import os
 
-import util
-
-_DEFAULT_PUSHOVER_APP_TOKEN = util.kms_decrypt_str(
-    os.environ['DEFAULT_PUSHOVER_APP_TOKEN'])
-_DEFAULT_PUSHOVER_USER_KEY = util.kms_decrypt_str(
-    os.environ['DEFAULT_PUSHOVER_USER_KEY'])
+_DEFAULT_PUSHOVER_APP_TOKEN = os.environ['DEFAULT_PUSHOVER_APP_TOKEN']
+_DEFAULT_PUSHOVER_USER_KEY = os.environ['DEFAULT_PUSHOVER_USER_KEY']
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
