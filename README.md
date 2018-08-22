@@ -13,7 +13,7 @@ Pushover itself is hosted in Washington D.C. by LeaseWeb, so us-east-1 is the be
 | Runtime   | Python 3.6                             |
 | Handler   | `pushover_notification.lambda_handler` |
 | Memory    | 128 MiB (only uses ~40)                |
-| Timeout   | 10 seconds                             |
+| Timeout   | 6 seconds                              |
 
 ## Custom
 
