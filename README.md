@@ -4,6 +4,17 @@
 
 This lambda function supports both custom JSON strings and generic SNS messages (such as budget alerts).
 
+## Configuration
+
+Pushover itself is hosted in Washington D.C. by LeaseWeb, so us-east-1 is the best region from a latency perspective.
+
+| Parameter | Value                                  |
+|-----------|----------------------------------------|
+| Runtime   | Python 3.6                             |
+| Handler   | `pushover_notification.lambda_handler` |
+| Memory    | 128 MiB (only uses ~40)                |
+| Timeout   | 10 seconds                             |
+
 ## Custom
 
 The function tries to parse all messages as custom ones in the first instance, and falls back to the generic handler if this fails. The SNS message string should be valid JSON, parseable with `json.loads()`. The following fields are supported:
