@@ -4,7 +4,8 @@ cache: pip
 python:
 - 3.6
 script:
-- "./create_deployment_pkg"
+- pipenv install
+- ./create_deployment_pkg
 deploy:
 - provider: lambda
   function_name: pushover-notification
