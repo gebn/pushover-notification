@@ -2,7 +2,7 @@ sudo: false
 language: python
 cache: pip
 python:
-- 3.7
+- 3.7-dev
 script:
 - pipenv install
 - ./create_deployment_pkg
