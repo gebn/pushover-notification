@@ -2,7 +2,7 @@ sudo: false
 language: python
 cache: pip
 python:
-- 3.6
+- 3.7
 script:
 - pipenv install
 - ./create_deployment_pkg
@@ -12,7 +12,7 @@ deploy:
   description: Sends a push notification via Pushover in response to an SNS message
   region: us-east-1
   role: arn:aws:iam::158438328645:role/service-role/pushover-notification-role
-  runtime: python3.6
+  runtime: python3.7
   module_name: main
   handler_name: lambda_handler
   zip: "/dev/shm/deploy.zip"
@@ -25,7 +25,7 @@ deploy:
   description: Sends a push notification via Pushover in response to an SNS message
   region: us-east-1
   role: arn:aws:iam::158438328645:role/service-role/pushover-notification-role
-  runtime: python3.6
+  runtime: python3.7
   module_name: main
   handler_name: lambda_handler
   zip: "/dev/shm/deploy.zip"
