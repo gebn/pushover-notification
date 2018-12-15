@@ -16,7 +16,7 @@ deploy:
   module_name: pushover_notification
   handler_name: lambda_handler
   zip: "/dev/shm/deploy.zip"
-  timeout: 6
+  timeout: 5
   memory_size: 128
   on:
     branch: latest
@@ -29,7 +29,7 @@ deploy:
   module_name: pushover_notification
   handler_name: lambda_handler
   zip: "/dev/shm/deploy.zip"
-  timeout: 6
+  timeout: 5
   memory_size: 128
   publish: true
   on:
