@@ -132,35 +132,25 @@ def _parse_message(record: dict) -> pullover.PreparedMessage:
 
 
 # noinspection PyUnusedLocal
-def lambda_handler(event, context) -> int:
+def lambda_handler(event, context):
     """
     AWS Lambda entry point.
 
     :param event: The event that triggered this execution.
     :param context: Current runtime information: http://docs.aws.amazon.com
                     /lambda/latest/dg/python-context-object.html.
-    :return: The script exit code.
+    :raises RuntimeError: If a problem occurs during execution.
     """
     logger.info('Event: %s', json.dumps(event, indent=4))
 
-    if 'Records' not in event:
-        logger.error('Event contains no records')
-        return 1
+    if 'Records' not in event or not event['Records']:
+        raise RuntimeError('Event contains no records')
 
-    errors = 0
-    for record in event['Records']:
-        try:
-            message = _parse_message(record)
-            response = message.send(max_tries=1)  # disable back-off
-            if not response.ok:
-                logger.error('Send error %d for request %s: %s',
-                             response.status, response.id, response.errors)
-                errors += 1
-                continue
+    record = event['Records'][0]  # there will never be more than one record
+    message = _parse_message(record)
+    response = message.send(max_tries=1)  # disable back-off - use Lambda retry
+    if not response.ok:
+        raise RuntimeError(f'Send error {response.status} for request '
+                           f'{response.id}: {response.errors}')
 
-            logger.info('Successfully sent notification %s', response.id)
-        except ValueError:
-            logger.exception('Malformed event record')
-            errors += 1
-
-    return errors
+    logger.info('Successfully sent notification %s', response.id)
