@@ -26,11 +26,13 @@ data "aws_iam_policy_document" "pushover_notification_policy" {
 }
 
 resource "aws_iam_policy" "pushover_notification_policy" {
-  policy = "${data.aws_iam_policy_document.pushover_notification_policy.json}"
+  name_prefix = "pushover-notification"
+  policy      = "${data.aws_iam_policy_document.pushover_notification_policy.json}"
 }
 
 resource "aws_iam_role" "pushover_notification_role" {
   // direct attach - no standalone policy
+  name_prefix        = "pushover_notification"
   assume_role_policy = "${data.aws_iam_policy_document.pushover_notification_role_policy.json}"
 }
 
