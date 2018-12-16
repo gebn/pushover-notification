@@ -1,4 +1,4 @@
-data "aws_iam_policy_document" "pushover_notification_role_policy" {
+data "aws_iam_policy_document" "role_policy" {
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -9,36 +9,36 @@ data "aws_iam_policy_document" "pushover_notification_role_policy" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "pushover_notification" {
+resource "aws_cloudwatch_log_group" "logs" {
   name              = "/aws/lambda/${aws_lambda_function.pushover_notification.function_name}"
   retention_in_days = 3
 }
 
-data "aws_iam_policy_document" "pushover_notification_policy" {
+data "aws_iam_policy_document" "policy" {
   statement {
     actions = [
       "logs:CreateLogStream",
       "logs:PutLogEvents",
     ]
 
-    resources = ["${aws_cloudwatch_log_group.pushover_notification.arn}:*"]
+    resources = ["${aws_cloudwatch_log_group.logs.arn}:*"]
   }
 }
 
-resource "aws_iam_policy" "pushover_notification_policy" {
+resource "aws_iam_policy" "policy" {
   name_prefix = "pushover-notification"
-  policy      = "${data.aws_iam_policy_document.pushover_notification_policy.json}"
+  policy      = "${data.aws_iam_policy_document.policy.json}"
 }
 
-resource "aws_iam_role" "pushover_notification_role" {
+resource "aws_iam_role" "role" {
   // direct attach - no standalone policy
   name_prefix        = "pushover_notification"
-  assume_role_policy = "${data.aws_iam_policy_document.pushover_notification_role_policy.json}"
+  assume_role_policy = "${data.aws_iam_policy_document.role_policy.json}"
 }
 
-resource "aws_iam_role_policy_attachment" "pushover_notification_policy" {
-  role       = "${aws_iam_role.pushover_notification_role.name}"
-  policy_arn = "${aws_iam_policy.pushover_notification_policy.arn}"
+resource "aws_iam_role_policy_attachment" "policy" {
+  role       = "${aws_iam_role.role.name}"
+  policy_arn = "${aws_iam_policy.policy.arn}"
 }
 
 resource "aws_lambda_function" "pushover_notification" {
@@ -49,7 +49,7 @@ resource "aws_lambda_function" "pushover_notification" {
   runtime       = "python3.7"
   timeout       = 5
   publish       = "${var.publish_function}"
-  role          = "${aws_iam_role.pushover_notification_role.arn}"
+  role          = "${aws_iam_role.role.arn}"
 
   environment {
     variables = {
@@ -70,7 +70,7 @@ resource "aws_lambda_alias" "prod" {
 
 // without this, the subscription doesn't work
 // https://github.com/hashicorp/terraform/issues/10748#issuecomment-267463350
-resource "aws_lambda_permission" "with_sns" {
+resource "aws_lambda_permission" "sns" {
   statement_id  = "AllowExecutionFromSNS"
   action        = "lambda:InvokeFunction"
   function_name = "${aws_lambda_function.pushover_notification.function_name}"
@@ -78,7 +78,7 @@ resource "aws_lambda_permission" "with_sns" {
   source_arn    = "${aws_sns_topic.push_notification.arn}"
 }
 
-resource "aws_sns_topic_subscription" "push_notification_lambda" {
+resource "aws_sns_topic_subscription" "function" {
   topic_arn = "${aws_sns_topic.push_notification.arn}"
   protocol  = "lambda"
   endpoint  = "${aws_lambda_function.pushover_notification.arn}"
