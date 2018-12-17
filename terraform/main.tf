@@ -1,3 +1,12 @@
+terraform {
+  backend "s3" {
+    bucket         = "terraform.thebrightons.co.uk"
+    key            = "pushover-notification/state"
+    region         = "eu-west-1"
+    dynamodb_table = "TerraformStateLocks"
+  }
+}
+
 provider "aws" {
   version    = "~> 1.52"
   access_key = "${var.access_key}"
