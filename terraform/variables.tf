@@ -1,5 +1,3 @@
-variable "access_key" {}
-variable "secret_key" {}
 variable "skylab_account_id" {}
 variable "deployment_package" {}
 variable "publish_function" {}
