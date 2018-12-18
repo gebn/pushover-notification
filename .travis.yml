@@ -14,6 +14,7 @@ before_install:
 - wget https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip
 - unzip terraform_${TF_VERSION}_linux_amd64.zip -d terraform
 install:
+- pip install -r requirements.txt
 - pipenv install
 - terraform/terraform init
 script:
