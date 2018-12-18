@@ -3,39 +3,30 @@ language: python
 cache: pip
 python:
 - 3.7-dev
-script:
+env:
+- TF_VERSION=0.11.11
+- TF_INPUT=0
+- TF_IN_AUTOMATION=1
+- DEPLOYMENT_PACKAGE=/tmp/deploy.zip
+- PLAN=/dev/shm/changes
+before_install:
+- wget https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip
+- unzip terraform_${TF_VERSION}_linux_amd64.zip -d terraform
+install:
 - pipenv install
-- ./create_deployment_pkg
+- terraform/terraform init
+script:
+- ./create_deployment_pkg $DEPLOYMENT_PACKAGE
+- cd terraform
+- terraform validate
+- terraform fmt -check
+- export TF_VAR_deployment_package=$DEPLOYMENT_PACKAGE
+- if [[ ! -z $TRAVIS_TAG ]]; export TF_VAR_publish=true; fi
+- terraform plan -out $PLAN | ./redact
+- terraform apply -auto-approve $PLAN | ./redact
 deploy:
-- provider: lambda
-  function_name: pushover-notification
-  description: Sends a push notification via Pushover in response to an SNS message
-  region: us-east-1
-  role: arn:aws:iam::158438328645:role/service-role/pushover-notification-role
-  runtime: python3.7
-  module_name: pushover_notification
-  handler_name: lambda_handler
-  zip: "/dev/shm/deploy.zip"
-  timeout: 5
-  memory_size: 128
-  on:
-    branch: latest
-- provider: lambda
-  function_name: pushover-notification
-  description: Sends a push notification via Pushover in response to an SNS message
-  region: us-east-1
-  role: arn:aws:iam::158438328645:role/service-role/pushover-notification-role
-  runtime: python3.7
-  module_name: pushover_notification
-  handler_name: lambda_handler
-  zip: "/dev/shm/deploy.zip"
-  timeout: 5
-  memory_size: 128
-  publish: true
-  on:
-    tags: true
 - provider: releases
-  file: "/dev/shm/deploy.zip"
+  file: $DEPLOYMENT_PACKAGE
   skip_cleanup: true
   api_key:
     secure: km3cWIpS7j/ELZuQQmeSPwp4dKLX+t6PooppS4Exy6papUFo2JOIFYSgGqTq4gCMts+ibjgyPv5584M+3ZcJJdBbhFyzyr5aQ7R6JmInKsfPq5NbdqlWWDqU3hqo4QFZxTBLJTHZr+YBihGi6RcX9CY+nNO+tGcp7GQkInK8/neoL+Tz3Rs9q4AmHzaehD0nuZ5Y4UNYO4FTk1cBI6qUdyNTcbqqp9DNZk9c62FdnwfzYjeETCXZt2ceRMnhFY582iPK7RfacxbDQWBptmooduWBsSDRlb409vDTovY/e/ANgI3pkOPAi2zGKwMw5EabS5HQZUyvpQAS0EgNL5X/64p2oHopx/+vv/LHTwUyskgPBtrsaYUQW/vl2cqMYSjQSji7RXXpwh0c6g63pxnAyJGy6XBGXgWo5xO8Acz+MNYlQs1mmwHXHe5CN56myfJor86pU20zRlMr406yJYaio6VVfc5Ayc0dd9JqYZDU9ugWGu7Omjmsx160SmST3eDM5CbZ+BE6r7pZV6cd6B1At9Jtn5CJ1zrpHSSgl/CNBt5okmzw0R2Qm+lhqro1v+zLyBxFSn0smuCrZ/4EtsXuX7she/skkSeUmUZv7zXa/CUAxiNztP8Ky0bBYFyjzn/imuMnZKRQShqO4+dNxBQQaXqQwO6cVMRKqIEZGvkkIyI=

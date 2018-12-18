@@ -2,8 +2,14 @@
 
 readonly WORKING_DIR="$PWD"
 readonly OUTPUT_DIR="/tmp/deploy"
-readonly OUTPUT_ZIP="/dev/shm/deploy.zip"  # must match .travis.yml
 readonly DEPENDENCIES="$VIRTUAL_ENV/lib/python3.7/site-packages"
+
+if [[ -z $1 ]]; then
+    echo "Usage: $0 <output zip>" >&2
+    exit 1
+fi
+
+readonly OUTPUT_ZIP="$1"
 
 echo "Working directory: $WORKING_DIR"
 echo "Virtual env: $VIRTUAL_ENV"
