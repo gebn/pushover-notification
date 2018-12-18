@@ -69,21 +69,8 @@ resource "aws_lambda_permission" "sns" {
   source_arn    = "${aws_sns_topic.push_notification.arn}"
 }
 
-resource "aws_lambda_alias" "prod" {
-  name             = "prod"
-  description      = "the latest production release"
-  function_name    = "${aws_lambda_function.pushover_notification.arn}"
-  function_version = "${aws_lambda_function.pushover_notification.version}"
-
-  lifecycle {
-    // this is updated behind terraform's back; having a prod alias pointing to the
-    // last published version cannot be expressed
-    ignore_changes = ["function_version"]
-  }
-}
-
 resource "aws_sns_topic_subscription" "function" {
   topic_arn = "${aws_sns_topic.push_notification.arn}"
   protocol  = "lambda"
-  endpoint  = "${aws_lambda_alias.prod.arn}"
+  endpoint  = "${aws_lambda_function.pushover_notification.qualified_arn}"
 }
