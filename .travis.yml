@@ -23,7 +23,7 @@ script:
 - terraform validate
 - terraform fmt -check
 - export TF_VAR_deployment_package=$DEPLOYMENT_PACKAGE
-- if [[ ! -z $TRAVIS_TAG ]]; export TF_VAR_publish=true; fi
+- if [[ ! -z $TRAVIS_TAG ]]; then export TF_VAR_publish=true; fi
 - terraform plan -out $PLAN | ./redact
 - terraform apply -auto-approve $PLAN | ./redact
 deploy:
