@@ -4,11 +4,12 @@ cache: pip
 python:
 - 3.7-dev
 env:
-- TF_VERSION=0.11.11
-- TF_INPUT=0
-- TF_IN_AUTOMATION=1
-- DEPLOYMENT_PACKAGE=/tmp/deploy.zip
-- PLAN=/dev/shm/changes
+  global:
+    - TF_VERSION=0.11.11
+    - TF_INPUT=0
+    - TF_IN_AUTOMATION=1
+    - DEPLOYMENT_PACKAGE=/tmp/deploy.zip
+    - PLAN=/dev/shm/changes
 before_install:
 - wget https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip
 - unzip terraform_${TF_VERSION}_linux_amd64.zip -d terraform
