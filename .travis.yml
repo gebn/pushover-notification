@@ -11,7 +11,7 @@ env:
     - DEPLOYMENT_PACKAGE=/tmp/deploy.zip
     - PLAN=/dev/shm/changes
 before_install:
-  - set -e
+  - set -eo pipefail
   - curl -sSo terraform.zip https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip
   - unzip terraform.zip -d terraform
 install:
