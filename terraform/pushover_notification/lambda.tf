@@ -82,4 +82,7 @@ resource "aws_sns_topic_subscription" "function" {
   topic_arn = "${aws_sns_topic.push_notification.arn}"
   protocol  = "lambda"
   endpoint  = "${aws_lambda_alias.prod.arn}"
+
+  // otherwise the alias may not exist (yet)
+  count = "${var.publish_function ? 1 : 0}"
 }
