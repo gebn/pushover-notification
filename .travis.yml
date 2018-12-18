@@ -16,16 +16,17 @@ before_install:
 install:
 - pip install -r requirements.txt
 - pipenv install
-- terraform/terraform init
+- cd terraform
+- ./terraform init
 script:
 - ./create_deployment_pkg $DEPLOYMENT_PACKAGE
 - cd terraform
-- terraform validate
-- terraform fmt -check
+- ./terraform validate
+- ./terraform fmt -check
 - export TF_VAR_deployment_package=$DEPLOYMENT_PACKAGE
 - if [[ ! -z $TRAVIS_TAG ]]; then export TF_VAR_publish=true; fi
-- terraform plan -out $PLAN | ./redact
-- terraform apply -auto-approve $PLAN | ./redact
+- ./terraform plan -out $PLAN | ./redact
+- ./terraform apply -auto-approve $PLAN | ./redact
 deploy:
 - provider: releases
   file: $DEPLOYMENT_PACKAGE
