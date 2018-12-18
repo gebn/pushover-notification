@@ -18,6 +18,7 @@ install:
 - pipenv install
 - cd terraform
 - ./terraform init
+- cd -
 script:
 - ./create_deployment_pkg $DEPLOYMENT_PACKAGE
 - cd terraform
@@ -27,6 +28,7 @@ script:
 - if [[ ! -z $TRAVIS_TAG ]]; then export TF_VAR_publish=true; fi
 - ./terraform plan -out $PLAN | ./redact
 - ./terraform apply -auto-approve $PLAN | ./redact
+- cd -
 deploy:
 - provider: releases
   file: $DEPLOYMENT_PACKAGE
