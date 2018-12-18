@@ -22,10 +22,10 @@ install:
 script:
 - ./create_deployment_pkg $DEPLOYMENT_PACKAGE
 - cd terraform
-- ./terraform validate
-- ./terraform fmt -check
 - export TF_VAR_deployment_package=$DEPLOYMENT_PACKAGE
 - if [[ ! -z $TRAVIS_TAG ]]; then export TF_VAR_publish=true; fi
+- ./terraform validate
+- ./terraform fmt -check
 - ./terraform plan -out $PLAN | ./redact
 - ./terraform apply -auto-approve $PLAN | ./redact
 - cd -
