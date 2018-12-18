@@ -49,7 +49,6 @@ resource "aws_lambda_function" "pushover_notification" {
   handler          = "pushover_notification.lambda_handler"
   runtime          = "python3.7"
   timeout          = 5
-  publish          = "${var.publish_function}"
   role             = "${aws_iam_role.role.arn}"
 
   environment {
@@ -58,15 +57,6 @@ resource "aws_lambda_function" "pushover_notification" {
       DEFAULT_PUSHOVER_USER_KEY  = "${var.default_pushover_user_key}"
     }
   }
-}
-
-// alias is only updated when publishing the function (tag release)
-resource "aws_lambda_alias" "prod" {
-  name             = "prod"
-  description      = "the latest production release"
-  function_name    = "${aws_lambda_function.pushover_notification.arn}"
-  function_version = "${aws_lambda_function.pushover_notification.version}"
-  count            = "${var.publish_function ? 1 : 0}"
 }
 
 // without this, the subscription doesn't work
@@ -79,11 +69,21 @@ resource "aws_lambda_permission" "sns" {
   source_arn    = "${aws_sns_topic.push_notification.arn}"
 }
 
+resource "aws_lambda_alias" "prod" {
+  name             = "prod"
+  description      = "the latest production release"
+  function_name    = "${aws_lambda_function.pushover_notification.arn}"
+  function_version = "${aws_lambda_function.pushover_notification.version}"
+
+  lifecycle {
+    // this is updated behind terraform's back; having a prod alias pointing to the
+    // last published version cannot be expressed
+    ignore_changes = ["function_version"]
+  }
+}
+
 resource "aws_sns_topic_subscription" "function" {
   topic_arn = "${aws_sns_topic.push_notification.arn}"
   protocol  = "lambda"
   endpoint  = "${aws_lambda_alias.prod.arn}"
-
-  // otherwise the alias may not exist (yet)
-  count = "${var.publish_function ? 1 : 0}"
 }
