@@ -131,7 +131,6 @@ def _parse_message(record: dict) -> pullover.PreparedMessage:
         return _parse_generic_message(record)
 
 
-# noinspection PyUnusedLocal
 def lambda_handler(event, context):
     """
     AWS Lambda entry point.
