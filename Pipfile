@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 pullover = ">=1.1.0"
 python-dateutil = "*"
+urllib3 = ">=1.24.2"
 
 [dev-packages]
 
