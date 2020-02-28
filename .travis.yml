@@ -1,4 +1,4 @@
-sudo: false
+os: linux
 language: python
 cache: pip
 python:
@@ -32,8 +32,7 @@ script:
 deploy:
   - provider: releases
     file: $DEPLOYMENT_PACKAGE
-    skip_cleanup: true
-    api_key:
+    token:
       secure: km3cWIpS7j/ELZuQQmeSPwp4dKLX+t6PooppS4Exy6papUFo2JOIFYSgGqTq4gCMts+ibjgyPv5584M+3ZcJJdBbhFyzyr5aQ7R6JmInKsfPq5NbdqlWWDqU3hqo4QFZxTBLJTHZr+YBihGi6RcX9CY+nNO+tGcp7GQkInK8/neoL+Tz3Rs9q4AmHzaehD0nuZ5Y4UNYO4FTk1cBI6qUdyNTcbqqp9DNZk9c62FdnwfzYjeETCXZt2ceRMnhFY582iPK7RfacxbDQWBptmooduWBsSDRlb409vDTovY/e/ANgI3pkOPAi2zGKwMw5EabS5HQZUyvpQAS0EgNL5X/64p2oHopx/+vv/LHTwUyskgPBtrsaYUQW/vl2cqMYSjQSji7RXXpwh0c6g63pxnAyJGy6XBGXgWo5xO8Acz+MNYlQs1mmwHXHe5CN56myfJor86pU20zRlMr406yJYaio6VVfc5Ayc0dd9JqYZDU9ugWGu7Omjmsx160SmST3eDM5CbZ+BE6r7pZV6cd6B1At9Jtn5CJ1zrpHSSgl/CNBt5okmzw0R2Qm+lhqro1v+zLyBxFSn0smuCrZ/4EtsXuX7she/skkSeUmUZv7zXa/CUAxiNztP8Ky0bBYFyjzn/imuMnZKRQShqO4+dNxBQQaXqQwO6cVMRKqIEZGvkkIyI=
     on:
       tags: true
