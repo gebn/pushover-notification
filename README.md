@@ -17,7 +17,9 @@ Pushover itself is hosted in Washington D.C. by LeaseWeb, so us-east-1 is the be
 
 ## Custom
 
-The function tries to parse all messages as custom ones in the first instance, and falls back to the generic handler if this fails. The SNS message string should be valid JSON, parseable with `json.loads()`. The following fields are supported:
+The function tries to parse all messages as custom ones in the first instance, and falls back to the generic handler if this fails.
+The SNS message string should be valid JSON, parseable with `json.loads()`.
+The following fields are supported:
 
     {
         "app": "token",               # Pushover application token
