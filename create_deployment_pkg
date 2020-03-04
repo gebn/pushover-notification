@@ -4,7 +4,12 @@ set -euf -o pipefail
 
 readonly WORKING_DIR="$PWD"
 readonly OUTPUT_DIR="/tmp/deploy"
-readonly DEPENDENCIES=$(set -e; python -c "import site; print(site.getsitepackages()[0])")
+readonly DEPENDENCIES_DIR=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+
+if [[ $DEPENDENCIES_DIR == "" ]]; then
+    echo "Cannot find site-packages directory" >&2
+    exit 1
+fi
 
 if [[ -z $1 ]]; then
     echo "Usage: $0 <output zip>" >&2
@@ -19,7 +24,7 @@ if [[ -d $OUTPUT_DIR ]]; then
 fi
 
 mkdir "$OUTPUT_DIR"
-rsync -a "$DEPENDENCIES/" "$OUTPUT_DIR"
+rsync -a "$DEPENDENCIES_DIR/" "$OUTPUT_DIR"
 rsync -a pushover_notification.py "$OUTPUT_DIR"
 du -sh "$OUTPUT_DIR"
 
