@@ -5,7 +5,7 @@ python:
   - 3.8
 env:
   global:
-    - TF_VERSION=0.11.11
+    - TF_VERSION=0.12.21
     - TF_INPUT=0
     - TF_IN_AUTOMATION=1
     - DEPLOYMENT_PACKAGE=/tmp/deploy.zip
