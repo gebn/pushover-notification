@@ -47,7 +47,7 @@ resource "aws_lambda_function" "pushover_notification" {
   function_name    = "pushover-notification"
   description      = "Sends a push notification via Pushover in response to an SNS message"
   handler          = "pushover_notification.lambda_handler"
-  runtime          = "python3.7"
+  runtime          = "python3.8"
   timeout          = 5
   role             = "${aws_iam_role.role.arn}"
 
