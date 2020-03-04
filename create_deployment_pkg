@@ -1,8 +1,10 @@
 #!/bin/bash
 
+set -euf -o pipefail
+
 readonly WORKING_DIR="$PWD"
 readonly OUTPUT_DIR="/tmp/deploy"
-readonly DEPENDENCIES="$VIRTUAL_ENV/lib/python3.7/site-packages"
+readonly DEPENDENCIES=$(python -c "import site; print(site.getsitepackages()[0])")
 
 if [[ -z $1 ]]; then
     echo "Usage: $0 <output zip>" >&2
@@ -10,9 +12,6 @@ if [[ -z $1 ]]; then
 fi
 
 readonly OUTPUT_ZIP="$1"
-
-echo "Working directory: $WORKING_DIR"
-echo "Virtual env: $VIRTUAL_ENV"
 
 if [[ -d $OUTPUT_DIR ]]; then
     echo "Output dir already exists" >&2
