@@ -4,7 +4,7 @@ set -euf -o pipefail
 
 readonly WORKING_DIR="$PWD"
 readonly OUTPUT_DIR="/tmp/deploy"
-readonly DEPENDENCIES=$(python -c "import site; print(site.getsitepackages()[0])")
+readonly DEPENDENCIES=$(set -e; python -c "import site; print(site.getsitepackages()[0])")
 
 if [[ -z $1 ]]; then
     echo "Usage: $0 <output zip>" >&2

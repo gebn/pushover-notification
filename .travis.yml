@@ -14,8 +14,9 @@ before_install:
   - set -eo pipefail
   - curl -sSo terraform.zip https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip
   - unzip terraform.zip -d terraform
-install:
+  - pip install --upgrade pip
   - pip install pipenv
+install:
   - pipenv install
   - cd terraform
   - ./terraform init
