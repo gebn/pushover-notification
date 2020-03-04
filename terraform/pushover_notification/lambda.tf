@@ -43,7 +43,7 @@ resource "aws_iam_role_policy_attachment" "policy" {
 
 resource "aws_lambda_function" "pushover_notification" {
   filename         = "${var.deployment_package}"
-  source_code_hash = "${base64sha256(file(var.deployment_package))}"
+  source_code_hash = "${filebase64sha256(var.deployment_package)}"
   function_name    = "pushover-notification"
   description      = "Sends a push notification via Pushover in response to an SNS message"
   handler          = "pushover_notification.lambda_handler"
